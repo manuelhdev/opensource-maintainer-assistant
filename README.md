@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OpenSource Maintainer Assistant
+
+A local-first web app for open source maintainers who need one practical place to organize repository maintenance, task triage, release planning, and health checks.
+
+The first version uses mock data and LocalStorage so it is easy to demo, fork, and publish. The codebase is structured so a GitHub API integration can be added later without rewriting the app.
+
+## Features
+
+- Dashboard with simulated maintenance metrics
+- Task manager with create, edit, complete, delete, search, type filters, and priority filters
+- Release planner with editable checklist, version field, release notes, and mock changelog generation
+- Repo health view for documentation, tests, dependencies, security, and visual score
+- Settings for repository name, GitHub URL, maintainer name, and preferences
+- Responsive Next.js App Router UI
+- LocalStorage persistence with mock seed data
+
+## Tech Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- Lucide React icons
+- LocalStorage persistence
+
+shadcn/ui is not configured in this initial scaffold, so the app uses local Tailwind component classes that can be replaced with shadcn/ui later if desired.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```text
+src/
+  app/
+    globals.css
+    layout.tsx
+    page.tsx
+  data/
+    mock.ts
+  hooks/
+    useLocalStorage.ts
+  lib/
+    changelog.ts
+  types/
+    index.ts
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Future GitHub API Integration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The app is prepared for a future integration layer:
 
-## Deploy on Vercel
+- `src/data/mock.ts` contains seed data that can later be replaced by GitHub API responses.
+- `src/types/index.ts` defines the core domain models.
+- `src/hooks/useLocalStorage.ts` isolates initial persistence.
+- `src/lib/changelog.ts` keeps generation logic outside the UI.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+A future implementation can add `src/services/github/` with API clients, mappers, and authentication boundaries while keeping the UI modules mostly intact.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT
