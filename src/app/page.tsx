@@ -29,6 +29,7 @@ import {
   initialSettings,
   initialTasks,
 } from "@/data/mock";
+import { useGitHubActivity, type GitHubActivity } from "@/hooks/useGitHubActivity";
 import { useGitHubRepository, type GitHubRepository } from "@/hooks/useGitHubRepository";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { buildMockChangelog } from "@/lib/changelog";
@@ -101,6 +102,12 @@ export default function Home() {
     loading: repositoryLoading,
     error: repositoryError,
   } = useGitHubRepository(settings.githubUrl);
+
+  const {
+    data: activity,
+    loading: activityLoading,
+    error: activityError,
+  } = useGitHubActivity(settings.githubUrl);
 
   const completedTasks = tasks.filter((task) => task.completed).length;
   const openTasks = tasks.length - completedTasks;
@@ -306,6 +313,9 @@ export default function Home() {
                 repository={repository}
                 repositoryLoading={repositoryLoading}
                 repositoryError={repositoryError}
+                activity={activity}
+                activityLoading={activityLoading}
+                activityError={activityError}
               />
             )}
 
@@ -363,6 +373,9 @@ function DashboardView({
   repository,
   repositoryLoading,
   repositoryError,
+  activity,
+  activityLoading,
+  activityError,
 }: {
   completedTasks: number;
   openTasks: number;
@@ -370,6 +383,9 @@ function DashboardView({
   repository: GitHubRepository | null;
   repositoryLoading: boolean;
   repositoryError: string | null;
+  activity: GitHubActivity | null;
+  activityLoading: boolean;
+  activityError: string | null;
 }) {
   const icons = [Code2, ClipboardList, FileText, Bell];
 
@@ -437,12 +453,24 @@ function DashboardView({
             <div>
               <h3 className="text-lg font-semibold">Maintenance pulse</h3>
               <p className="text-sm text-slate-500">
-                Local workflow signals combined with live repository data.
+                {activityError
+                  ? activityError
+                  : "Live GitHub activity combined with local maintainer workflow."}
               </p>
             </div>
             <Bell size={20} className="text-amber-600" aria-hidden />
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <MetricStrip
+              label="Open issues"
+              value={activityLoading ? "..." : activity?.openIssues ?? "—"}
+              tone="amber"
+            />
+            <MetricStrip
+              label="Open PRs"
+              value={activityLoading ? "..." : activity?.openPullRequests ?? "—"}
+              tone="sky"
+            />
             <MetricStrip label="Open tasks" value={openTasks} tone="amber" />
             <MetricStrip
               label="Completed tasks"
@@ -1015,7 +1043,7 @@ function MetricStrip({
   tone,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   tone: "amber" | "emerald" | "sky";
 }) {
   const toneClass = {
