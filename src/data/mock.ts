@@ -53,9 +53,9 @@ export const initialChecklist: ReleaseChecklistItem[] = [
 ];
 
 export const initialSettings: RepoSettings = {
-  repoName: "open-source-maintainer-assistant",
-  githubUrl: "https://github.com/example/open-source-maintainer-assistant",
-  maintainerName: "Open Source Maintainer",
+  repoName: "opensource-maintainer-assistant",
+  githubUrl: "https://github.com/manuelhdev/opensource-maintainer-assistant",
+  maintainerName: "Manuel Herrera",
   compactMode: false,
   weeklyDigest: true,
 };

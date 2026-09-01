@@ -24,12 +24,12 @@ import type { Dispatch, FormEvent, ReactNode, SetStateAction } from "react";
 import { useMemo, useState } from "react";
 
 import {
-  dashboardMetrics,
   healthSignals,
   initialChecklist,
   initialSettings,
   initialTasks,
 } from "@/data/mock";
+import { useGitHubRepository, type GitHubRepository } from "@/hooks/useGitHubRepository";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { buildMockChangelog } from "@/lib/changelog";
 import type {
@@ -95,6 +95,12 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | TaskType>("all");
   const [priorityFilter, setPriorityFilter] = useState<"all" | Priority>("all");
+
+  const {
+    data: repository,
+    loading: repositoryLoading,
+    error: repositoryError,
+  } = useGitHubRepository(settings.githubUrl);
 
   const completedTasks = tasks.filter((task) => task.completed).length;
   const openTasks = tasks.length - completedTasks;
@@ -297,6 +303,9 @@ export default function Home() {
                 completedTasks={completedTasks}
                 openTasks={openTasks}
                 repoHealthScore={repoHealthScore}
+                repository={repository}
+                repositoryLoading={repositoryLoading}
+                repositoryError={repositoryError}
               />
             )}
 
@@ -351,17 +360,57 @@ function DashboardView({
   completedTasks,
   openTasks,
   repoHealthScore,
+  repository,
+  repositoryLoading,
+  repositoryError,
 }: {
   completedTasks: number;
   openTasks: number;
   repoHealthScore: number;
+  repository: GitHubRepository | null;
+  repositoryLoading: boolean;
+  repositoryError: string | null;
 }) {
-  const icons = [AlertTriangle, ClipboardList, Rocket, ShieldAlert];
+  const icons = [Code2, ClipboardList, FileText, Bell];
+
+  const updatedDate = repository
+    ? new Date(repository.updatedAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    : "—";
+
+  const liveMetrics = [
+    {
+      label: "Stars",
+      value: repositoryLoading ? "..." : repository ? String(repository.stars) : "—",
+      delta: repository?.fullName ?? repositoryError ?? "GitHub live data",
+    },
+    {
+      label: "Forks",
+      value: repositoryLoading ? "..." : repository ? String(repository.forks) : "—",
+      delta: repository ? "GitHub live data" : repositoryError ?? "Loading repository",
+    },
+    {
+      label: "Language",
+      value: repositoryLoading ? "..." : repository?.language ?? "N/A",
+      delta: repository
+        ? `Branch: ${repository.defaultBranch}`
+        : repositoryError ?? "Loading repository",
+    },
+    {
+      label: "Updated",
+      value: repositoryLoading ? "..." : updatedDate,
+      delta: repository
+        ? `${repository.visibility} repository`
+        : repositoryError ?? "Loading repository",
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {dashboardMetrics.map((metric, index) => {
+        {liveMetrics.map((metric, index) => {
           const Icon = icons[index];
 
           return (
@@ -388,7 +437,7 @@ function DashboardView({
             <div>
               <h3 className="text-lg font-semibold">Maintenance pulse</h3>
               <p className="text-sm text-slate-500">
-                Simulated signals for the current repository.
+                Local workflow signals combined with live repository data.
               </p>
             </div>
             <Bell size={20} className="text-amber-600" aria-hidden />
