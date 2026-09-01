@@ -9,7 +9,6 @@ import {
   Code2,
   FileText,
   Filter,
-  Github,
   HeartPulse,
   LayoutDashboard,
   Pencil,
@@ -277,7 +276,7 @@ export default function Home() {
                   rel="noreferrer"
                   className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:border-slate-300 hover:text-slate-950"
                 >
-                  <Github size={17} aria-hidden="true" />
+                  <Code2 size={17} aria-hidden="true" />
                   Repository
                 </a>
                 <button
